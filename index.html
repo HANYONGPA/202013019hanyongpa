@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Apple and Amazon Revenue Chart</title>
+    <title>Chart</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   </head>
   <body>
@@ -15,6 +15,7 @@
     <canvas id="chart3"></canvas>
     <canvas id="income/revenue"></canvas>
     <canvas id="r&d/revenue"></canvas>
+    <canvas id="mixed-chart"></canvas>
     <script>
       const valueLabelPlugin = {
         id: "valueLabel",
@@ -449,6 +450,8 @@
             label: "Apple",
             backgroundColor: "rgb(75, 192, 192)",
             borderColor: "rgb(75, 192, 192)",
+            pointBorderColor: "rgb(255, 255, 255)",
+            pointBorderWidth: 1,
             data: [
               11.5, 11.9, 18.3, 19.4, 27.3, 28.2, 31.2, 35.3, 28.7, 28.7, 30.5,
               27.8, 26.7, 26.7, 24.6, 24.1, 29.8, 30.3,
@@ -458,6 +461,8 @@
             label: "Amazon",
             backgroundColor: "rgb(255, 99, 132)",
             borderColor: "rgb(255, 99, 132)",
+            pointBorderColor: "rgb(255, 255, 255)",
+            pointBorderWidth: 1,
             data: [
               4.7, 3.7, 4.7, 4.2, 4.5, 4.1, 1.9, 1.1, 1.1, 0.2, 2.1, 3.1, 2.3,
               5.3, 5.2, 5.9, 5.3, 2.4,
@@ -467,6 +472,8 @@
             label: "Alphabet",
             backgroundColor: "rgb(255, 205, 86)",
             borderColor: "rgb(255, 205, 86)",
+            pointBorderColor: "rgb(255, 255, 255)",
+            pointBorderWidth: 1,
             data: [
               32.6, 33.0, 30.7, 30.3, 35.1, 35.5, 30.9, 27.5, 26.6, 25.0, 25.9,
               26.3, 23.6, 20.1, 21.1, 22.6, 30.7, 26.7,
@@ -476,6 +483,8 @@
             label: "NVIDIA",
             backgroundColor: "rgb(54, 162, 235)",
             borderColor: "rgb(54, 162, 235)",
+            pointBorderColor: "rgb(255, 255, 255)",
+            pointBorderWidth: 1,
             data: [
               12.6, 16.3, 19.5, -2.9, -3.0, 8.5, 17.5, 16.4, 12.1, 17.1, 16.0,
               27.5, 33.0, 32.4, 26.6, 27.0, 37.2, 15.6,
@@ -485,6 +494,8 @@
             label: "GE",
             backgroundColor: "rgb(153, 102, 255)",
             borderColor: "rgb(153, 102, 255)",
+            pointBorderColor: "rgb(255, 255, 255)",
+            pointBorderWidth: 1,
             data: [
               15.2, 13.6, 13.0, 10.1, 7.2, 9.5, 10.2, 11.0, 14.9, 13.1, 8.6,
               9.5, 10.4, -2.2, 5.5, -0.7, 8.1, 7.1,
@@ -494,6 +505,8 @@
             label: "Facebook (Meta)",
             backgroundColor: "rgb(255, 159, 64)",
             borderColor: "rgb(255, 159, 64)",
+            pointBorderColor: "rgb(255, 255, 255)",
+            pointBorderWidth: 1,
             data: [
               0, 0, 0, -36.8, 38.6, 50.6, 48.5, 9.8, 35.6, 40.1, 34.6, 44.9,
               49.7, 44.6, 33.9, 38.0, 39.7, 24.8,
@@ -509,6 +522,8 @@
             label: "Apple",
             backgroundColor: "rgb(75, 192, 192)",
             borderColor: "rgb(75, 192, 192)",
+            pointBorderColor: "rgb(255, 255, 255)",
+            pointBorderWidth: 1,
             data: [
               3.6, 3.6, 2.9, 3.4, 3.0, 2.8, 2.2, 2.2, 2.6, 3.3, 3.5, 4.6, 5.1,
               5.3, 6.2, 6.9, 6.0, 6.7,
@@ -665,29 +680,24 @@
         },
       });
 
-      const incomePrevenueChart = new Chart(
-        document.getElementById("income/revenue"),
-        {
-          type: "line",
-          data: incomePrevenue,
-          options: {
-            responsive: true,
-            plugins: {
-              legend: {
-                position: "top",
-              },
-              title: {
-                display: true,
-                text: "영업이익/매출액 (%)",
-              },
-            },
-          },
-        }
-      );
-
-      const chart = new Chart(document.getElementById("r&d/revenue"), {
-        type: "line",
-        data: rNdPrevenue,
+      const mixedChart = new Chart(document.getElementById("mixed-chart"), {
+        type: "bar",
+        data: {
+          labels: incomePrevenue.labels, // 라벨은 공유할 수 있습니다.
+          datasets: [
+            ...incomePrevenue.datasets.map((dataset) => ({
+              ...dataset,
+              type: "line", // 이 데이터셋을 선 그래프로 표시하도록 설정
+              fill: false,
+              yAxisID: "y1",
+            })),
+            ...rNdPrevenue.datasets.map((dataset) => ({
+              ...dataset,
+              type: "bar", // 이 데이터셋을 막대 그래프로 표시하도록 설정
+              yAxisID: "y2",
+            })),
+          ],
+        },
         options: {
           responsive: true,
           plugins: {
@@ -696,7 +706,22 @@
             },
             title: {
               display: true,
-              text: "R&D지출/매출액 (%)",
+              text: "영업이익/매출액 (%, Line) 및 R&D 지출/매출액 (%, Bar) - 아래 기업 이름과 색상 클릭하여 원하는 부분만 보기 가능",
+            },
+          },
+          scales: {
+            y1: {
+              type: "linear",
+              position: "left",
+              beginAtZero: true,
+            },
+            y2: {
+              type: "linear",
+              position: "right",
+              beginAtZero: true,
+              grid: {
+                drawOnChartArea: false,
+              },
             },
           },
         },
